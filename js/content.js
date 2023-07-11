@@ -35,34 +35,6 @@ function doFilter(keywords) {
 }
 
 // Function to observe changes in the DOM
-/*
-function observeDOM() {
-    // Target the search result container parent element
-    const parentElement = document.body;
-
-    // Create a new MutationObserver
-    const observer = new MutationObserver(function(mutations) {
-        for (const mutation of mutations) {
-            for (const node of mutation.addedNodes) {
-                if (node.id === 'searchDisplay-div') {
-                    // If the desired div is added to the DOM, stop observing and apply the filtering logic
-                    //observer.disconnect();
-                    applyFiltering();
-                    return;
-                }
-            }
-        }
-    });
-
-    // Configure and start observing
-    observer.observe(parentElement, {
-        childList: true,
-        subtree: true
-    });
-}
-*/
-
-// Function to observe changes in the DOM
 function observeDOM() {
     // Target the search result container parent element
     const parentElement = document.body;
