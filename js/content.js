@@ -1,18 +1,16 @@
 // Retrieve the saved keywords from storage
 function applyFiltering() {
-    chrome.storage.local.get('keywords', function(result) {
-        var keywords = result.keywords || [];
-        doFilter(keywords);
+    chrome.storage.local.get(['jobTitleKeywords', 'companyNameKeywords'], function(result) {
+        var jobTitles = result.jobTitleKeywords || [];
+        var companyNames = result.companyNameKeywords || [];
+        doFilter(jobTitles, companyNames);
     });
 }
 
 // Function to apply the filtering logic
-function doFilter(keywords) {
-    console.log("[DEBUG] filtering keywords ");
-    console.log(keywords);
+function doFilter(jobTitles, companyNames) {
     // Get the search result container
     const searchResultsContainer = document.getElementById('searchDisplay-div');
-
 
     // Get the search result elements within the container
     const searchResults = searchResultsContainer.querySelectorAll('.search-card');
@@ -20,13 +18,14 @@ function doFilter(keywords) {
     // Iterate over the search result elements and hide those that don't match the keywords
     var cnt = 0;
     for (const result of searchResults) {
-        const jobTitleElement = result.querySelector('.card-title-link');
-        const jobTitle = jobTitleElement.textContent.toLowerCase();
+        const jobTitle = result.querySelector('.card-title-link').textContent.toLowerCase();
+        const companyName = result.querySelector('[data-cy="search-result-company-name"]').textContent.toLowerCase();
 
         // Check if the job title contains any of the keywords
-        const isMatchingKeyword = keywords.some(keyword => jobTitle.includes(keyword.toLowerCase()));
+        const filteredByTitle = jobTitles.some(keyword => jobTitle.includes(keyword.toLowerCase()));
+        const filteredByCompany = companyNames.some(keyword => companyName.includes(keyword.toLowerCase()));
 
-        if (isMatchingKeyword) {
+        if (filteredByTitle || filteredByCompany) {
             result.style.display = 'none';
             cnt++;
         }

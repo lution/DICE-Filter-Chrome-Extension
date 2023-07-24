@@ -2,25 +2,36 @@ document.addEventListener('DOMContentLoaded', function() {
     const addBtn = document.getElementById('addBtn');
     addBtn.addEventListener('click', addKeyword);
 
-    displaySavedKeywords();
+    const supportedKeywordTypes = ['jobTitleKeywords', 'companyNameKeywords'];
+    supportedKeywordTypes.forEach(keywordType => displaySavedKeywords(keywordType));
 });
 
 function addKeyword() {
-    const keywordInput = document.getElementById('keywordInput');
-    const keyword = keywordInput.value.trim();
+    const jobTitleInput = document.getElementById('jobTitleInput');
+    const jobTitle = jobTitleInput.value.trim();
+    const companyNameInput = document.getElementById('companyNameInput');
+    const companyName = companyNameInput.value.trim();
 
-    if (keyword) {
+    if (jobTitle) {
         // Clear the input field
-        keywordInput.value = '';
+        jobTitleInput.value = '';
 
         // Save the keyword to storage
-        saveKeyword(keyword);
+        saveKeyword('jobTitleKeywords', jobTitle);
+    }
+
+    if (companyName) {
+        // Clear the input field
+        companyNameInput.value = '';
+
+        // Save the keyword to storage
+        saveKeyword('companyNameKeywords', companyName);
     }
 }
 
-function saveKeyword(keyword) {
-    chrome.storage.local.get('keywords', function(result) {
-        const keywords = result.keywords || [];
+function saveKeyword(identifier, keyword) {
+    chrome.storage.local.get(identifier, function(result) {
+        const keywords = result[identifier] || [];
 
         // Check if the keyword already exists
         if (!keywords.includes(keyword)) {
@@ -28,20 +39,20 @@ function saveKeyword(keyword) {
 
             // Update the storage with the updated keywords
             chrome.storage.local.set({
-                keywords: keywords
+                [identifier]: keywords
             }, function() {
-                console.log('Keyword added:', keyword);
-                displaySavedKeywords();
+                console.log(identifier + ' keyword added:', keyword);
+                displaySavedKeywords(identifier);
             });
         }
     });
 }
 
-function displaySavedKeywords() {
-    const savedKeywordsList = document.getElementById('savedKeywords');
+function displaySavedKeywords(identifier) {
+    const savedKeywordsList = document.getElementById(identifier);
 
-    chrome.storage.local.get('keywords', function(result) {
-        const keywords = result.keywords || [];
+    chrome.storage.local.get(identifier, function(result) {
+        const keywords = result[identifier] || [];
 
         // Clear existing keywords
         savedKeywordsList.innerHTML = '';
@@ -55,7 +66,7 @@ function displaySavedKeywords() {
             deleteButton.textContent = 'Delete';
             deleteButton.addEventListener('click', function() {
                 // Delete the keyword from storage and update the display
-                deleteKeyword(keyword);
+                deleteKeyword(identifier, keyword);
             });
 
             li.appendChild(deleteButton);
@@ -64,19 +75,19 @@ function displaySavedKeywords() {
     });
 }
 
-function deleteKeyword(keyword) {
-    chrome.storage.local.get('keywords', function(result) {
-        const keywords = result.keywords || [];
+function deleteKeyword(identifier, keyword) {
+    chrome.storage.local.get(identifier, function(result) {
+        const keywords = result[identifier] || [];
 
         // Remove the keyword from the array
         const updatedKeywords = keywords.filter(kw => kw !== keyword);
 
         // Update the storage with the updated keywords
         chrome.storage.local.set({
-            keywords: updatedKeywords
+            [identifier]: updatedKeywords
         }, function() {
-            console.log('Keyword deleted:', keyword);
-            displaySavedKeywords();
+            console.log(identifier + ' keyword deleted:', keyword);
+            displaySavedKeywords(identifier);
         });
     });
 }
